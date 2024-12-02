@@ -48,14 +48,7 @@ public class JonathanMancalaRuleSet implements MancalaRuleSet {
 
     private MoveResult endingMove(MancalaBoard board, MancalaSide player, MancalaHole hole, int pastCaptured) {
         int currCaptured;
-        MancalaHole goalPosition;
-
-        if (player == MancalaSide.PLAYER1) {
-            goalPosition = MancalaHole.G;
-        }
-        else {
-            goalPosition = MancalaHole.g;
-        }
+        MancalaHole goalPosition = player.getGoal();
 
         if (board.getStones(hole) == 1
                 && getLegalMoves(board, player).contains(hole)
@@ -68,6 +61,17 @@ public class JonathanMancalaRuleSet implements MancalaRuleSet {
                             1 +
                             board.getStones(board.getOppositeHole(hole)));
             board.setStones(board.getOppositeHole(hole), 0);
+        }
+
+        if (isGameOver(board)) {
+            for (MancalaSide mancalaSide: new MancalaSide[]{MancalaSide.PLAYER1, MancalaSide.PlAYER2}) {
+                for (MancalaHole mancalaHole: getHoles(mancalaSide)) {
+                    board.setStones(mancalaSide.getGoal(), board.getStones(mancalaSide.getGoal()) + board.getStones(mancalaHole));
+                    board.setStones(mancalaHole, 0);
+                }
+            }
+            currCaptured = board.getStones(goalPosition);
+            return new MoveResult(currCaptured - pastCaptured, false, true);
         }
         currCaptured = board.getStones(goalPosition);
 
@@ -138,7 +142,7 @@ public class JonathanMancalaRuleSet implements MancalaRuleSet {
 
     @Override
     public Boolean isGameOver(MancalaBoard board) {
-        if (getLegalMoves(board, MancalaSide.PLAYER1).isEmpty() && getLegalMoves(board, MancalaSide.PlAYER2).isEmpty()) {
+        if (getLegalMoves(board, MancalaSide.PLAYER1).isEmpty() || getLegalMoves(board, MancalaSide.PlAYER2).isEmpty()) {
             return true;
         }
         return false;

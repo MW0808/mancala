@@ -122,7 +122,7 @@ public class CreateMatchView extends JPanel implements PropertyChangeListener {
             );
         });
 
-        cancelMatchButton.addActionListener(_ -> cancelMatchController.execute());
+        cancelMatchButton.addActionListener(a -> cancelMatchController.execute());
     }
 
     @Override

@@ -1,7 +1,13 @@
 package us.jonathans.use_case.notify_user;
 import us.jonathans.data_access.leaderboard.LeaderboardRepository;
+import us.jonathans.data_access.user.InMemoryUserDataAccess;
+import us.jonathans.entity.match.EngineMatch;
+import us.jonathans.entity.user.User;
+import us.jonathans.observable.subscriber.Subscriber;
 
-public class NotifyUserInteractor implements NotifyUserInputBoundary{
+import java.util.logging.Logger;
+
+public class NotifyUserInteractor implements NotifyUserInputBoundary, Subscriber<EngineMatch> {
     private final LeaderboardRepository leaderboardRepository;
     private final NotifyUserOutputBoundary notifyUserOutputBoundary;
 
@@ -15,6 +21,8 @@ public class NotifyUserInteractor implements NotifyUserInputBoundary{
     //Sends an SMS message to the user informing them of their position on the leaderboard
     @Override
     public void execute(NotifyUserInputData notifyUserInputData) {
+        Logger.getLogger("notify_user").info("Sending SMS to the user");
+
         int rank = leaderboardRepository.getLeaderboard().getRank(notifyUserInputData.getUsername());
 
         String message;
@@ -44,5 +52,16 @@ public class NotifyUserInteractor implements NotifyUserInputBoundary{
         }
 
         notifyUserOutputBoundary.notifyUser(notifyUserInputData.getPhoneNumber(), message);
+    }
+
+    @Override
+    public void onNext(EngineMatch engineMatch) {
+        User user = InMemoryUserDataAccess.getInstance().getUser(engineMatch.getPlayerId());
+        this.execute(
+                new NotifyUserInputData(
+                    user.getPhoneNumber(),
+                    user.getUsername()
+                )
+        );
     }
 }

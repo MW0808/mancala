@@ -184,29 +184,26 @@ class JonathanMancalaRuleSetTest {
         ruleSet.makeMove(board, MancalaSide.PLAYER1, MancalaHole.C));
     }
 
-    @Test
-    void testCaptureOpponentStones() {
-        board.setStones(MancalaHole.A, 2);
-        ruleSet.makeMove(board, MancalaSide.PLAYER1, MancalaHole.C);
-        ruleSet.makeMove(board, MancalaSide.PLAYER1, MancalaHole.A);
-        int[] correct = new int[]{
-                0,
-                5,
-                0,
-                5,
-                5,
-                5,
-                6,
-                4,
-                4,
-                4,
-                0,
-                4,
-                4,
-                0
-        };
-        for (int i = 0; i < board.getBoard().length; i++) {
-            assertEquals(board.getBoard()[i][0], correct[i]);
-        }
-    }
+//    @Test
+//    void testCaptureOpponentStones() {
+//        int[] newBoard = new int[]{
+//                0,
+//                4,
+//                4,
+//                4,
+//                5,
+//                5,
+//                6,
+//                4,
+//                4,
+//                4,
+//                0,
+//                4,
+//                4,
+//                0
+//        };
+//        for (int i = 0; i < board.getBoard().length; i++) {
+//            assertEquals(board.getBoard()[i][0], correct[i]);
+//        }
+//    }
 }

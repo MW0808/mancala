@@ -1,6 +1,13 @@
 package us.jonathans.use_case.post_leaderboard;
 
-public class PostLeaderboardInteractor implements PostLeaderboardInputBoundary{
+import us.jonathans.data_access.match.InMemoryMatchDataAccess;
+import us.jonathans.data_access.user.InMemoryUserDataAccess;
+import us.jonathans.entity.match.EngineMatch;
+import us.jonathans.observable.subscriber.Subscriber;
+
+import java.util.logging.Logger;
+
+public class PostLeaderboardInteractor implements PostLeaderboardInputBoundary, Subscriber<EngineMatch> {
     PostLeaderboardRepositoryInterface postLeaderboardRepository;
     PostLeaderboardOutputBoundary postLeaderboardPresenter;
 
@@ -12,6 +19,7 @@ public class PostLeaderboardInteractor implements PostLeaderboardInputBoundary{
 
     @Override
     public void execute(PostLeaderboardInputData postLeaderboardInputData){
+        Logger.getLogger("post_leaderboard").info("Posting the leaderboard");
         postLeaderboardRepository.postLeaderboard(postLeaderboardInputData.getUsername(),
                 postLeaderboardInputData.getOpponent(),
                 postLeaderboardInputData.getScore(),
@@ -19,5 +27,16 @@ public class PostLeaderboardInteractor implements PostLeaderboardInputBoundary{
 
         PostLeaderboardOutputData postLeaderboardOutputData = new PostLeaderboardOutputData(false);
         postLeaderboardPresenter.prepareSuccessView(postLeaderboardOutputData);
+    }
+
+    @Override
+    public void onNext(EngineMatch engineMatch) {
+        this.execute(
+                new PostLeaderboardInputData(
+                        InMemoryUserDataAccess.getInstance().getUser(engineMatch.getPlayerId()).getUsername(),
+                        engineMatch.getEngineId(),
+                        engineMatch.getGame().getBoard().getStones(engineMatch.getPlayerSide().getGoal())
+                )
+        );
     }
 }

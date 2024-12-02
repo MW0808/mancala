@@ -23,6 +23,7 @@ import us.jonathans.interface_adapter.start_game.StartGameViewModel;
 import us.jonathans.interface_adapter.make_computer_move.MakeComputerMoveController;
 import us.jonathans.interface_adapter.make_computer_move.MakeComputerMovePresenter;
 import us.jonathans.interface_adapter.make_computer_move.MakeComputerMoveViewModel;
+import us.jonathans.observable.publisher.MatchEndPublisher;
 import us.jonathans.use_case.cancel_match.CancelMatchInteractor;
 import us.jonathans.use_case.get_leaderboard.GetLeaderboardInteractor;
 import us.jonathans.use_case.get_leaderboard.GetLeaderboardOutputBoundary;
@@ -87,17 +88,12 @@ public class AppBuilder {
 
     public AppBuilder addPostLeaderboardUseCase(){
         postLeaderboardViewModel = new PostLeaderboardViewModel("postLeaderboard");
-        postLeaderboardController = new PostLeaderboardController(
-                new PostLeaderboardInteractor(
-                        new LeaderboardRepository(),
-                        new PostLeaderboardPresenter(postLeaderboardViewModel)
-                )
+        PostLeaderboardInteractor postLeaderboardInteractor = new PostLeaderboardInteractor(
+                new LeaderboardRepository(),
+                new PostLeaderboardPresenter(postLeaderboardViewModel)
         );
-        return this;
-    }
-
-    public AppBuilder addPostLeaderboardView() {
-        PostLeaderboardView view = new PostLeaderboardView(postLeaderboardViewModel);
+        postLeaderboardController = new PostLeaderboardController(postLeaderboardInteractor);
+        MatchEndPublisher.getInstance().subscribe(postLeaderboardInteractor);
         return this;
     }
 
@@ -124,23 +120,18 @@ public class AppBuilder {
     }
 
     public AppBuilder addNotifyUserUseCase() {
-        notifyUserController = new NotifyUserController(
-                new NotifyUserInteractor(
-                        new LeaderboardRepository(),
-                        new NotifyUserPresenter(
-                                new TwilioNotificationService(
+        NotifyUserInteractor notifyUserInteractor = new NotifyUserInteractor(
+                new LeaderboardRepository(),
+                new NotifyUserPresenter(
+                        new TwilioNotificationService(
                                 System.getenv("ACCOUNT_SID"),
                                 System.getenv("AUTH_TOKEN"),
-                                System.getenv("TWILIO_NUMBER"))
+                                System.getenv("TWILIO_NUMBER")
+                        )
                 )
-        ));
-//        UUID id = InMemoryMatchDataAccess.getInstance().getCurrentMatch().getPlayerId();
-//        User user = InMemoryUserDataAccess.getInstance().getUser(id);
-//        if (user.isUsePhoneNumber()){
-//            String phoneNumber = user.getPhoneNumber();
-//           String username = user.getUsername();
-//            notifyUserController.execute(phoneNumber, username);
-//        }
+        );
+        notifyUserController = new NotifyUserController(notifyUserInteractor);
+        MatchEndPublisher.getInstance().subscribe(notifyUserInteractor);
         return this;
     }
 

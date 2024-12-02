@@ -6,6 +6,7 @@ import us.jonathans.data_access.engine.EngineManager;
 import us.jonathans.entity.match.EngineMatch;
 import us.jonathans.entity.rule.Game;
 import us.jonathans.entity.rule.MancalaHole;
+import us.jonathans.observable.publisher.MatchEndPublisher;
 
 import java.util.logging.Logger;
 
@@ -36,5 +37,8 @@ public class MakeComputerMoveInteractor implements MakeComputerMoveInputBoundary
         makeComputerMovePresenter.prepareSuccessView(
                 new MakeComputerMoveOutputData(game.getBoard().asArray())
         );
+        if (game.isGameOver()) {
+            MatchEndPublisher.getInstance().publish(match);
+        }
     }
 }

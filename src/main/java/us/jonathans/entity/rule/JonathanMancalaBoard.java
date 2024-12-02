@@ -1,7 +1,7 @@
 package us.jonathans.entity.rule;
 
 public class JonathanMancalaBoard implements MancalaBoard{
-    private final Object[][] board;
+    public final Object[][] board;
 
     public JonathanMancalaBoard(int startStones) {
         board = getBoardPosition(startStones);

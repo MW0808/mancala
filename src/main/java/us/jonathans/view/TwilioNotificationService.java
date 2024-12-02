@@ -14,7 +14,11 @@ public class TwilioNotificationService implements NotificationService {
         this.ACCOUNT_SID = accountSID;
         this.AUTH_TOKEN = authToken;
         this.twilioPhoneNumber = twilioPhoneNumber;
-        Twilio.init(ACCOUNT_SID, AUTH_TOKEN);
+        try {
+            Twilio.init(ACCOUNT_SID, AUTH_TOKEN);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

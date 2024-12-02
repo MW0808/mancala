@@ -27,18 +27,17 @@ public class LeaderboardClient {
         json.put("timestamp", timestamp);       // Takes in the date/time the user played the game at
 
         //Post Request
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(json.toString(), StandardCharsets.UTF_8))
-                .build();
-
         try {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(json.toString(), StandardCharsets.UTF_8))
+                    .build();
             httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+
+        } catch (IllegalArgumentException _) {
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
         }
     }
 
@@ -47,21 +46,19 @@ public class LeaderboardClient {
         String url = BASE_URL + API_KEY;
 
         //Get Request
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .GET()
-                .build();
-
-        HttpResponse<String> response = null;
         try {
-            response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .GET()
+                    .build();
 
-        JSONObject jsonResponse = new JSONObject(response.body());
-        return jsonResponse.getJSONArray("leaderboard");
+            HttpResponse<String> response = null;
+            response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            JSONObject jsonResponse = new JSONObject(response.body());
+            return jsonResponse.getJSONArray("leaderboard");
+        } catch (IllegalArgumentException | IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
